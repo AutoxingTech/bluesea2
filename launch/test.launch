@@ -30,12 +30,15 @@
     <param name="error_circle" value="3"/>
     <param name="error_scale" value="0.9"/>
     #CONNECT#
-    <param name="type" value="udp" />
+    <!-- <param name="type" value="udp" />
     <param name="lidar_port" value="6543" />
     <param name="local_port" value="6669" />
     <param name="lidar_ip" value="192.168.0.99"/>
     <param name="group_listener" value="false" />
-    <param name="group_ip" value="224.0.0.11" />
+    <param name="group_ip" value="224.0.0.11" /> -->
+    <param name="type" value="uart"/>
+    <param name="port" value="/dev/ttyUSB0"/>
+    <param name="baud_rate" value="768000"/> #rate_list[ 768000, 1000000 ]#
     #GET#
     <param name="uuid" value="-1" />
     #SET#
@@ -74,12 +77,15 @@
     <param name="error_circle" value="3"/>
     <param name="error_scale" value="0.9"/>
     #CONNECT#
-    <param name="type" value="udp" />
+    <!-- <param name="type" value="udp" />
     <param name="lidar_port" value="6542" />
     <param name="local_port" value="6668" />
     <param name="lidar_ip" value="192.168.0.98"/>
     <param name="group_listener" value="false" />
-    <param name="group_ip" value="224.0.0.11" />
+    <param name="group_ip" value="224.0.0.11" /> -->
+    <param name="type" value="uart"/>
+    <param name="port" value="/dev/ttyUSB1"/>
+    <param name="baud_rate" value="230400"/> #rate_list[ 768000, 1000000 ]#
     #GET#
     <param name="uuid" value="-1" />
     #SET#
