@@ -664,7 +664,7 @@ static RawData *GetData0xCF(const RawDataHdr2 &hdr, unsigned char *pdat, bool wi
 	if (with_chk && chk != sum)
 	{
 		delete dat;
-		printf("chksum cf error");
+		printf("chksum cf error\n");
 		return NULL;
 	}
 

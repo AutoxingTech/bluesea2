@@ -1,0 +1,17 @@
+{
+    "python.autoComplete.extraPaths": [
+        "${workspaceFolder}/../../devel/lib/python3/dist-packages",
+    ],
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/../../devel/lib/python3/dist-packages",
+    ],
+    "cSpell.words": [
+        "datapoint"
+    ],
+    "files.associations": {
+        "*.tcc": "cpp",
+        "typeindex": "cpp",
+        "typeinfo": "cpp",
+        "cmath": "cpp"
+    }
+}

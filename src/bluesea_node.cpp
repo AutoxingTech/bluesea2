@@ -24,6 +24,8 @@
 #include "reader.h"
 #include "data_process.h"
 #include "algorithmAPI.h"
+#include "cln_msgs/AxLaserScan.h"
+
 HReader g_reader = NULL;
 std::string g_type = "uart";
 bool g_should_start = true;
@@ -44,6 +46,11 @@ struct PubHub
 	int error_num;
 	int offsetangle;
 };
+
+inline int16_t Util_degreeToI16(float degree)
+{
+	return int16_t(int32_t(degree * (65536.0f / 360.0f)) % 65536);
+}
 
 void closeSignal(int sig)
 {
@@ -839,6 +846,41 @@ void PublishLaserScan(ros::Publisher &laser_pub, int nfan, RawData **fans, std::
 	laser_pub.publish(output_scan);
 }
 
+void PublishAxScan(ros::Publisher &ax_laser_pub, int nfan, RawData **fans, std::string &frame_id)
+{
+	int N = 0;
+	for (int i = 0; i < nfan; i++)
+		N += fans[i]->N;
+
+	cln_msgs::AxLaserScan ax_laser_msg;
+	ax_laser_msg.speed = 62.8318519;
+	ax_laser_msg.header.frame_id = frame_id;
+
+	ros::Time now(fans[0]->ts[0], fans[0]->ts[1]);
+
+	// first pack
+	ax_laser_msg.header.stamp = now;
+	ax_laser_msg.ranges.reserve(N);
+	ax_laser_msg.angles.reserve(N);
+	ax_laser_msg.intensities.reserve(N);
+	ax_laser_msg.time_deltas.reserve(N);
+	double header_second = ax_laser_msg.header.stamp.toSec();
+
+	for (int j = 0; j < nfan; j++)
+	{
+		double t = double(fans[j]->ts[0]) + double(fans[j]->ts[1]) / 1000000000.0;
+		for (int i = 0; i < fans[j]->N; i++)
+		{
+			ax_laser_msg.ranges.push_back(fans[j]->points[i].distance);
+			// double deg = ROSAng(fans[j]->points[i].degree);
+			ax_laser_msg.angles.push_back(Util_degreeToI16(fans[j]->points[i].degree));
+			ax_laser_msg.time_deltas.push_back((t - header_second) * 10000);
+			ax_laser_msg.intensities.push_back(fans[j]->points[i].confidence);
+		}
+	}
+	ax_laser_pub.publish(ax_laser_msg);
+}
+
 void PublishCloud(ros::Publisher &cloud_pub, int nfan, RawData **fans, std::string &frame_id,
 				  double max_dist,
 				  bool with_filter, double min_ang, double max_ang, int collect_angle)
@@ -1032,11 +1074,14 @@ int main(int argc, char **argv)
 	signal(SIGINT, closeSignal);
 	/*****************************ROS arg start************************************/
 	std::string laser_topics[MAX_LIDARS];
+	std::string ax_laser_topics[MAX_LIDARS];
 	std::string cloud_topics[MAX_LIDARS];
 	priv_nh.param("topic", laser_topics[0], std::string("scan"));
+	priv_nh.param("ax_topic", ax_laser_topics[0], std::string("/ax_laser_scan"));
 	priv_nh.param("cloud_topic", cloud_topics[0], std::string("cloud"));
-	std::string frame_id;
+	std::string frame_id, ax_frame_id;
 	priv_nh.param("frame_id", frame_id, std::string("LH_laser")); // could be used for rviz
+	priv_nh.param("ax_frame_id", ax_frame_id, std::string("horizontal_laser_link")); // could be used for rviz
 
 	/*****************************ROS arg end************************************/
 	/*****************************DATA arg start************************************/
@@ -1078,6 +1123,10 @@ int main(int argc, char **argv)
 		sprintf(t, "scan%d", i);
 		priv_nh.param(s, laser_topics[i], std::string(t));
 
+		sprintf(s, "ax_topic%d", i);
+		sprintf(t, "/ax_laser_scan%d", i);
+		priv_nh.param(s, ax_laser_topics[i], std::string(t));
+
 		sprintf(s, "cloud_topic%d", i);
 		sprintf(t, "cloud%d", i);
 		priv_nh.param(s, cloud_topics[i], std::string(t));
@@ -1118,8 +1167,9 @@ int main(int argc, char **argv)
 	priv_nh.param("zero_shift", zero_shift, 0.0);
 
 	// data output
-	bool output_scan = true, output_cloud = false, output_360 = true;
+	bool output_scan = true, output_cloud = false, output_360 = true, output_ax_scan = false;
 	priv_nh.param("output_scan", output_scan, true);	// true: enable output angle+distance mode, 0: disable
+	priv_nh.param("output_ax_scan", output_ax_scan, false);	// true: enable output ax_laser_scan, 0: disable
 	priv_nh.param("output_cloud", output_cloud, false); // false: enable output xyz format, 0 : disable
 	priv_nh.param("output_360", output_360, true);		// true: packet data of 360 degree (multiple RawData), publish once
 														// false: publish every RawData (36 degree)
@@ -1282,7 +1332,7 @@ int main(int argc, char **argv)
 	getCMDList(cmdlist, g_type, uuid, model, init_rpm, resample_res2, with_smooth, with_deshadow, enable_alarm_msg, direction, unit_is_mm, with_confidence, ats);
 	printf("ROS VERSION:%s\n",BLUESEA2_VERSION);
 	// Synthesize the full  log path
-	ros::Publisher laser_pubs[MAX_LIDARS], cloud_pubs[MAX_LIDARS];
+	ros::Publisher laser_pubs[MAX_LIDARS], cloud_pubs[MAX_LIDARS], ax_laser_pubs[MAX_LIDARS];
 
 	for (int i = 0; i < lidar_count; i++)
 	{
@@ -1294,6 +1344,10 @@ int main(int argc, char **argv)
 		if (output_scan)
 		{
 			laser_pubs[i] = node_handle.advertise<sensor_msgs::LaserScan>(laser_topics[i], 50);
+		}
+		if (output_ax_scan)
+		{
+			ax_laser_pubs[i] = node_handle.advertise<cln_msgs::AxLaserScan>(ax_laser_topics[i], 10);
 		}
 	}
 	ros::ServiceServer stop_srv = node_handle.advertiseService("stop_motor", stop_motor);
@@ -1396,6 +1450,11 @@ int main(int argc, char **argv)
 					{
 						PublishCloud(cloud_pubs[i], n, fans, frame_id, max_dist,
 									 with_angle_filter, min_angle, max_angle, hubs[i]->offsetangle);
+					}
+
+					if (output_ax_scan)
+					{
+						PublishAxScan(ax_laser_pubs[i], n, fans, ax_frame_id);
 					}
 
 					for (int i = 0; i < n; i++)
