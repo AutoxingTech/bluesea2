@@ -4,7 +4,8 @@
     <!-- <param name="topic" value="scan_akira1"/> -->
     <param name="topic" value="scan_raw"/>
     <param name="frame_id" value="laser" />
-    <param name="ax_topic" value="/ax_laser_scan"/>
+    <!-- <param name="ax_topic" value="/ax_laser_scan"/> -->
+    <param name="ax_topic" value="/horizontal_laser_2d/raw_data"/>
     <param name="ax_frame_id" value="horizontal_laser_link"/>
       #DATA#
     <param name="logPath" value="/tmp/log"/>
@@ -37,8 +38,8 @@
     <param name="group_listener" value="false" />
     <param name="group_ip" value="224.0.0.11" /> -->
     <param name="type" value="uart"/>
-    <param name="port" value="/dev/ttyUSB0"/>
-    <param name="baud_rate" value="768000"/> #rate_list[ 768000, 1000000 ]#
+    <param name="port" value="/dev/ttyAMA4"/>
+    <param name="baud_rate" value="921600"/> #rate_list[ 768000, 1000000 ]#
     #GET#
     <param name="uuid" value="-1" />
     #SET#

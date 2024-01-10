@@ -24,7 +24,7 @@
 #include "reader.h"
 #include "data_process.h"
 #include "algorithmAPI.h"
-#include "cln_msgs/AxLaserScan.h"
+#include "ax_msgs/AxLaserScan.h"
 
 HReader g_reader = NULL;
 std::string g_type = "uart";
@@ -852,7 +852,7 @@ void PublishAxScan(ros::Publisher &ax_laser_pub, int nfan, RawData **fans, std::
 	for (int i = 0; i < nfan; i++)
 		N += fans[i]->N;
 
-	cln_msgs::AxLaserScan ax_laser_msg;
+	ax_msgs::AxLaserScan ax_laser_msg;
 	ax_laser_msg.speed = 62.8318519;
 	ax_laser_msg.header.frame_id = frame_id;
 
@@ -1347,7 +1347,7 @@ int main(int argc, char **argv)
 		}
 		if (output_ax_scan)
 		{
-			ax_laser_pubs[i] = node_handle.advertise<cln_msgs::AxLaserScan>(ax_laser_topics[i], 10);
+			ax_laser_pubs[i] = node_handle.advertise<ax_msgs::AxLaserScan>(ax_laser_topics[i], 10);
 		}
 	}
 	ros::ServiceServer stop_srv = node_handle.advertiseService("stop_motor", stop_motor);
