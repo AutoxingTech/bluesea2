@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
   message_generation
+  cln_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -114,7 +115,7 @@ catkin_package(
 #  LIBRARIES bluesea
 #  CATKIN_DEPENDS rosconsole roscpp sensor_msgs std_srvs
 #  DEPENDS system_lib
-CATKIN_DEPENDS message_runtime
+CATKIN_DEPENDS message_runtime cln_msgs
 )
 
 ###########

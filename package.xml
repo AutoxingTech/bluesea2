@@ -57,16 +57,19 @@
   <build_depend>roscpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
   <build_depend>std_srvs</build_depend>
+  <build_depend>cln_msgs</build_depend>
   <!-- <build_depend>dynamic_reconfigure</build_depend> -->
   <build_export_depend>rosconsole</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>sensor_msgs</build_export_depend>
   <build_export_depend>std_srvs</build_export_depend>
+  <build_export_depend>cln_msgs</build_export_depend>
   <!-- <build_export_depend>dynamic_reconfigure</build_export_depend> -->
   <exec_depend>rosconsole</exec_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_srvs</exec_depend>
+  <exec_depend>cln_msgs</exec_depend>
   <!-- <exec_depend>dynamic_reconfigure</exec_depend> -->
 
 
