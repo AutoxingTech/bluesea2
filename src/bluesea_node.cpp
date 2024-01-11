@@ -872,8 +872,7 @@ void PublishAxScan(ros::Publisher &ax_laser_pub, int nfan, RawData **fans, std::
 		for (int i = 0; i < fans[j]->N; i++)
 		{
 			ax_laser_msg.ranges.push_back(fans[j]->points[i].distance);
-			// double deg = ROSAng(fans[j]->points[i].degree);
-			ax_laser_msg.angles.push_back(Util_degreeToI16(fans[j]->points[i].degree));
+			ax_laser_msg.angles.push_back(Util_degreeToI16(ROSAng(fans[j]->points[i].degree)));
 			ax_laser_msg.time_deltas.push_back((t - header_second) * 10000);
 			ax_laser_msg.intensities.push_back(fans[j]->points[i].confidence);
 		}
